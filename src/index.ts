@@ -47,7 +47,7 @@ export class Text2Speech {
           responseType: "stream",
         }).then((response) => {
           response.data.pipe(writeStream);
-        });
+        }).catch(error => reject(error));
         writeStream.on("finish", resolve);
         writeStream.on("error", reject);
       });
