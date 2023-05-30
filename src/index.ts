@@ -109,23 +109,28 @@ export class Text2Speech {
     let parts = text.split(new RegExp(pattern));
     parts = parts.filter((p) => p.length > 0);
 
-    let output = [];
+    const output = [];
 
-    output = parts;
-    // TODO: Split parts if they are longer than maxChars
-    // let i = 0
-    // for (const p of parts) {
-    //   if (!output[i]) {
-    //     output[i] = ''
-    //   }
-    //   if (output[i].length + p.length < this.maxChars) {
-    //     output[i] += ' ' + p
-    //   } else {
-    //     i++
-    //     output[i] = p
-    //   }
-    // }
-    // output[0] = output[0].substr(1)
+    for (let part of parts) {
+      if (part.length <= DEFAULT_MAX_CHARS) {
+        output.push(part);
+      } else {
+        let startIndex = 0;
+        let endIndex = DEFAULT_MAX_CHARS;
+        while (startIndex < part.length) {
+          if (endIndex >= part.length) {
+            endIndex = part.length;
+          } else {
+            while (part[endIndex] !== ' ' && endIndex > startIndex) {
+              endIndex--;
+            }
+          }
+          output.push(part.slice(startIndex, endIndex));
+          startIndex = endIndex + 1;
+          endIndex = startIndex + DEFAULT_MAX_CHARS;
+        }
+      }
+    }
 
     return output;
   }
