@@ -108,7 +108,21 @@ export class Text2Speech {
     const pattern = puncList.join("|");
     let parts = text.split(new RegExp(pattern));
     parts = parts.filter((p) => p.length > 0);
-
+    parts = parts.flatMap((str) => {
+      if (str.length <= 100) {
+        return str;
+      } else {
+        const slicedStrings = [];
+        let i = 0;
+        while (i < str.length) {
+          const slicedString = str.substring(i, i + 100);
+          slicedStrings.push(slicedString);
+          i += 100;
+        }
+        return slicedStrings;
+      }
+    });
+    
     const output = [];
 
     for (let part of parts) {
