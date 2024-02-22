@@ -107,8 +107,44 @@ class Text2Speech {
         const pattern = puncList.join("|");
         let parts = text.split(new RegExp(pattern));
         parts = parts.filter((p) => p.length > 0);
-        let output = [];
-        output = parts;
+        parts = parts.flatMap((str) => {
+            if (str.length <= 100) {
+              return str;
+            } else {
+              const slicedStrings = [];
+              let i = 0;
+              while (i < str.length) {
+                const slicedString = str.substring(i, i + 100);
+                slicedStrings.push(slicedString);
+                i += 100;
+              }
+              return slicedStrings;
+            }
+          });
+          
+        const output = [];
+
+        for (let part of parts) {
+          if (part.length <= DEFAULT_MAX_CHARS) {
+            output.push(part);
+          } else {
+            let startIndex = 0;
+            let endIndex = DEFAULT_MAX_CHARS;
+            while (startIndex < part.length) {
+              if (endIndex >= part.length) {
+                endIndex = part.length;
+              } else {
+                while (part[endIndex] !== ' ' && endIndex > startIndex) {
+                  endIndex--;
+                }
+              }
+              output.push(part.slice(startIndex, endIndex));
+              startIndex = endIndex + 1;
+              endIndex = startIndex + DEFAULT_MAX_CHARS;
+            }
+          }
+        }
+        
         return output;
     }
     createServer(port) {

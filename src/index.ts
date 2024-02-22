@@ -108,24 +108,43 @@ export class Text2Speech {
     const pattern = puncList.join("|");
     let parts = text.split(new RegExp(pattern));
     parts = parts.filter((p) => p.length > 0);
+    parts = parts.flatMap((str) => {
+      if (str.length <= 100) {
+        return str;
+      } else {
+        const slicedStrings = [];
+        let i = 0;
+        while (i < str.length) {
+          const slicedString = str.substring(i, i + 100);
+          slicedStrings.push(slicedString);
+          i += 100;
+        }
+        return slicedStrings;
+      }
+    });
+    
+    const output = [];
 
-    let output = [];
-
-    output = parts;
-    // TODO: Split parts if they are longer than maxChars
-    // let i = 0
-    // for (const p of parts) {
-    //   if (!output[i]) {
-    //     output[i] = ''
-    //   }
-    //   if (output[i].length + p.length < this.maxChars) {
-    //     output[i] += ' ' + p
-    //   } else {
-    //     i++
-    //     output[i] = p
-    //   }
-    // }
-    // output[0] = output[0].substr(1)
+    for (let part of parts) {
+      if (part.length <= DEFAULT_MAX_CHARS) {
+        output.push(part);
+      } else {
+        let startIndex = 0;
+        let endIndex = DEFAULT_MAX_CHARS;
+        while (startIndex < part.length) {
+          if (endIndex >= part.length) {
+            endIndex = part.length;
+          } else {
+            while (part[endIndex] !== ' ' && endIndex > startIndex) {
+              endIndex--;
+            }
+          }
+          output.push(part.slice(startIndex, endIndex));
+          startIndex = endIndex + 1;
+          endIndex = startIndex + DEFAULT_MAX_CHARS;
+        }
+      }
+    }
 
     return output;
   }
